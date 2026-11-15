@@ -1,68 +1,168 @@
-ELO — AI Assistant
+⚡ ELO
 
-An AI Assistant project built with Python, featuring a modular architecture and a web-based interface.
+Your Personal AI Assistant
 
-About ELO
+<p align="center">
+  <strong>A personal AI assistant built with Python, modular architecture, and a vision for intelligent interaction.</strong>
+</p><p align="center">
+  <img src="https://img.shields.io/badge/PROJECT-ELO-00E5FF?style=for-the-badge&labelColor=09090F" alt="ELO">
+  <img src="https://img.shields.io/badge/PYTHON-CORE-9B5DE5?style=for-the-badge&logo=python&logoColor=white&labelColor=09090F" alt="Python">
+  <img src="https://img.shields.io/badge/STATUS-IN%20DEVELOPMENT-FF00FF?style=for-the-badge&labelColor=09090F" alt="Development">
+</p><p align="center">
+  <a href="https://github.com/nandanshanto/ELO">Repository</a> •
+  <a href="https://github.com/nandanshanto">Developer</a>
+</p>---
 
-ELO is a personal AI Assistant project developed to explore Python programming, AI integration, automation, and modern user interfaces.
+◈ ABOUT ELO
 
-Project Structure
+ELO is a personal AI assistant project developed to explore intelligent interaction, modular software architecture, and personal assistant technologies.
+
+Built primarily with Python, ELO brings together different application components, including conversational interaction, memory handling, voice-related modules, and a user interface.
+
+The goal is to develop an extensible assistant that can evolve through continuous experimentation and development.
+
+«Not just another script. A vision of a smarter personal assistant.»
+
+---
+
+◈ PROJECT HIGHLIGHTS
+
+- Modular Architecture — Separated application components for easier development and maintenance.
+- Conversation Handling — A dedicated command and response module.
+- Memory Management — Memory loading and saving functionality in the application.
+- Voice Components — Dedicated voice-related application module.
+- Sentinel Components — Separate modules for assistant-related monitoring functionality.
+- User Interface — Frontend and HTML-based interface components.
+
+Project capabilities are under active development.
+
+---
+
+◈ TECHNOLOGY STACK
+
+<p>
+  <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white">
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black">
+  <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black">
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white">
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white">
+  <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white">
+</p>---
+
+◈ PROJECT ARCHITECTURE
 
 ELO/
+│
 ├── frontend/
 │   └── src/
+│       ├── App.css
+│       └── App.jsx
+│
 ├── src/
+│   ├── __init__.py
 │   ├── commands.py
 │   ├── guardian.py
 │   ├── sentinel.py
 │   └── voice.py
+│
 ├── sentinel_watch/
+│
 ├── ui/
 │   └── index.html
+│
 ├── gui.py
 ├── main.py
+├── orb_test.py
 └── .gitignore
 
-Technologies
+Core Components
 
-- Python
-- JavaScript / JSX
-- CSS
-- HTML
-- Git & GitHub
+Module| Responsibility
+"main.py"| Main application entry point
+"gui.py"| GUI-related application logic
+"commands.py"| Command and response handling
+"guardian.py"| Guardian component
+"sentinel.py"| Sentinel component
+"voice.py"| Voice-related functionality
+"frontend/"| Frontend source code
+"ui/"| HTML user interface
+"sentinel_watch/"| Sentinel-related supporting files
 
-Installation
+---
 
-1. Clone the repository:
+◈ GETTING STARTED
+
+Prerequisites
+
+- Python installed on your system
+- Git installed on your system
+
+01 — Clone the Repository
 
 git clone https://github.com/nandanshanto/ELO.git
 
-2. Navigate to the project directory:
+02 — Navigate to the Project
 
 cd ELO
 
-3. Create a virtual environment:
+03 — Create a Virtual Environment
 
 python -m venv .venv
 
-4. Activate the virtual environment (Windows):
+04 — Activate the Environment
 
-.venv\Scripts\activate
+Windows PowerShell:
 
-5. Install the required dependencies after setting up the project's requirements file.
+.venv\Scripts\Activate.ps1
 
-Running the Project
+05 — Install Dependencies
 
-The main entry point is "main.py".
+Dependency installation instructions will be added after the project's dependency configuration is finalized.
+
+06 — Run ELO
 
 python main.py
 
-Check the project configuration for any additional setup requirements.
+---
 
-Developer
+◈ DEVELOPMENT ROADMAP
 
-GitHub: "@nandanshanto" (https://github.com/nandanshanto)
+- [x] Initial project structure
+- [x] Python core modules
+- [x] Frontend foundation
+- [x] Initial GitHub publication
+- [ ] Improve assistant interaction
+- [ ] Expand memory functionality
+- [ ] Refine voice components
+- [ ] Improve user interface
+- [ ] Complete installation documentation
 
-License
+---
 
-License information will be added later.
+◈ PROJECT STATUS
+
+<kbd>UNDER ACTIVE DEVELOPMENT</kbd>
+
+ELO is an evolving personal development project. Its architecture, functionality, and capabilities may change as development continues.
+
+Contributions, ideas, and constructive feedback are welcome.
+
+---
+
+◈ DEVELOPER
+
+<p align="center">
+  <strong>NANDAN SHANTO</strong>
+  <br>
+  Developer of ELO
+  <br><br>
+  <a href="https://github.com/nandanshanto">
+    <img src="https://img.shields.io/badge/GitHub-nandanshanto-00E5FF?style=for-the-badge&logo=github&logoColor=white&labelColor=09090F">
+  </a>
+</p>---
+
+<p align="center">
+  <strong>⚡ ELO — Your Personal AI Assistant</strong>
+  <br>
+  <sub>Built with curiosity. Driven by innovation.</sub>
+</p>
