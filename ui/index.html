@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ELO | Personal AI System</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body, #root {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden !important;
+      font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #050716;
+      color: #ffffff;
+      user-select: none;
+    }
+
+    /* Main Window Container locked to viewport so it NEVER shifts or scrolls */
+    .elo-window {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background:
+        radial-gradient(circle at 16% 10%, rgba(92, 67, 232, 0.36) 0%, transparent 36%),
+        radial-gradient(circle at 74% 66%, rgba(29, 78, 216, 0.48) 0%, transparent 46%),
+        radial-gradient(circle at 60% 90%, rgba(59, 130, 246, 0.34) 0%, transparent 42%),
+        linear-gradient(135deg, #06081c 0%, #091032 48%, #050818 100%);
+      overflow: hidden !important;
+    }
+
+    /* 3D Wave Ribbons in Background */
+    .wave-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(1100px 550px at 72% 82%, rgba(37, 99, 235, 0.3), transparent 62%),
+        radial-gradient(850px 480px at 86% 42%, rgba(79, 70, 229, 0.24), transparent 58%);
+    }
+
+    .wave-ribbon-1 {
+      position: absolute;
+      right: -12%;
+      bottom: -28%;
+      width: 82%;
+      height: 96%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 48% 32%, rgba(59, 130, 246, 0.26), rgba(15, 23, 66, 0.04) 64%, transparent 74%);
+      filter: blur(26px);
+      transform: rotate(-16deg);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wave-ribbon-2 {
+      position: absolute;
+      right: 4%;
+      bottom: -18%;
+      width: 62%;
+      height: 74%;
+      border-radius: 50%;
+      border-top: 2px solid rgba(96, 165, 250, 0.22);
+      background: radial-gradient(circle at 50% 25%, rgba(67, 56, 202, 0.25), transparent 65%);
+      filter: blur(14px);
+      transform: rotate(-22deg);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ================= TOP TITLE BAR ================= */
+    .titlebar {
+      position: relative;
+      z-index: 30;
+      height: 44px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      background: rgba(7, 9, 26, 0.78);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(14px);
+    }
+
+    .titlebar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .orb-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 32%, #ffffff 0%, #d8b4fe 28%, #7c3aed 65%, #3b0764 100%);
+      box-shadow: 0 0 14px rgba(168, 85, 247, 0.9), inset 0 0 6px rgba(255, 255, 255, 0.85);
+      flex-shrink: 0;
+    }
+
+    .orb-icon.large {
+      width: 30px;
+      height: 30px;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.6px;
+      color: #f8fafc;
+    }
+
+    .titlebar-divider {
+      width: 1px;
+      height: 16px;
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .titlebar-nav-btn {
+      font-size: 14px;
+      color: #cbd5e1;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: all 0.15s;
+      background: transparent;
+      border: none;
+      font-family: inherit;
+    }
+
+    .titlebar-nav-btn:hover, .titlebar-nav-btn.active {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11.5px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(167, 139, 250, 0.25);
+      color: #cbd5e1;
+      margin-left: 8px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+    .status-dot.online {
+      background: #4ade80;
+      box-shadow: 0 0 8px #4ade80;
+    }
+    .status-dot.offline {
+      background: #fb7185;
+      box-shadow: 0 0 8px #fb7185;
+    }
+    .status-dot.busy {
+      background: #facc15;
+      box-shadow: 0 0 8px #facc15;
+    }
+
+    .window-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: #cbd5e1;
+      font-size: 13px;
+    }
+
+    .win-btn {
+      cursor: pointer;
+      width: 28px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.15s;
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+    }
+    .win-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .win-btn.close:hover {
+      background: rgba(239, 68, 68, 0.8);
+      color: #ffffff;
+    }
+
+    /* ================= WORKSPACE ================= */
+    .workspace {
+      position: relative;
+      z-index: 5;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      display: flex;
+      overflow: hidden !important;
+    }
+
+    /* ================= LEFT SIDEBAR ================= */
+    .sidebar {
+      width: 215px;
+      height: 100%;
+      min-height: 0;
+      background: rgba(10, 13, 34, 0.56);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(18px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 12px 18px 12px;
+      z-index: 20;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .sidebar-top {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .sidebar-top::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar-top::-webkit-scrollbar-thumb {
+      background: rgba(167, 139, 250, 0.25);
+      border-radius: 4px;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-left: 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand span {
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: #f8fafc;
+    }
+
+    .nav-dropdown {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: linear-gradient(90deg, rgba(139, 92, 246, 0.25) 0%, rgba(30, 41, 82, 0.48) 100%);
+      border: 1px solid rgba(167, 139, 250, 0.28);
+      border-radius: 8px;
+      cursor: pointer;
+      color: #f8fafc;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: border-color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .nav-dropdown:hover {
+      border-color: rgba(192, 132, 252, 0.55);
+    }
+
+    .nav-dropdown::before {
+      content: "";
+      position: absolute;
+      left: -6px;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      border-radius: 4px;
+      background: #c084fc;
+      box-shadow: 0 0 8px #c084fc;
+    }
+
+    .nav-dropdown-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .tasks-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: rgba(15, 20, 48, 0.65);
+      border: 1px solid rgba(167, 139, 250, 0.2);
+      border-radius: 8px;
+      padding: 6px;
+      margin-top: -8px;
+      flex-shrink: 0;
+    }
+
+    .task-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      text-align: left;
+      padding: 7px 9px;
+      font-size: 12.5px;
+      color: #e2e8f0;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .task-btn:hover {
+      background: rgba(168, 85, 247, 0.22);
+      color: #ffffff;
+    }
+
+    .recent-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-left: 4px;
+      flex-shrink: 0;
+    }
+
+    .recent-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-right: 4px;
+      margin-bottom: 2px;
+    }
+
+    .recent-label {
+      font-size: 12.5px;
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+
+    .mini-action-btn {
+      font-size: 11px;
+      color: #c084fc;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .mini-action-btn:hover {
+      background: rgba(192, 132, 252, 0.15);
+      color: #e9d5ff;
+    }
+
+    .recent-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13px;
+      color: #cbd5e1;
+      padding: 7px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .recent-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+    }
+
+    .recent-item span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-footer {
+      padding-left: 6px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .avatar-trigger {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 4px 6px 4px 0;
+      border-radius: 24px;
+      transition: background 0.15s;
+    }
+
+    .avatar-trigger:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.45);
+      background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    }
+
+    .user-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-meta-name {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #f1f5f9;
+    }
+
+    .user-meta-sub {
+      font-size: 10.5px;
+      color: #94a3b8;
+    }
+
+    /* ================= CENTER STAGE ================= */
+    .center-stage {
+      flex: 1;
+      height: 100%;
+      min-height: 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 24px 92px 24px;
+      overflow: hidden !important;
+    }
+
+    .center-stage.chat-active {
+      justify-content: flex-start;
+      padding-top: 22px;
+    }
+
+    .hero-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 600px;
+      z-index: 6;
+      flex-shrink: 0;
+      margin-top: -36px;
+      animation: heroFadeIn 0.22s ease-out;
+    }
+
+    @keyframes heroFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-greeting {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 46px;
+      font-weight: 500;
+      color: #f8fafc;
+      margin-bottom: 24px;
+      letter-spacing: 0.4px;
+      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.55);
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* Center Prompt Box matching screenshot */
+    .center-prompt-card {
+      width: 100%;
+      max-width: 510px;
+      background: rgba(43, 45, 92, 0.54);
+      border: 1px solid rgba(167, 139, 250, 0.34);
+      border-radius: 16px;
+      padding: 15px 18px 13px 18px;
+      backdrop-filter: blur(22px);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+
+    .center-prompt-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #f8fafc;
+      font-size: 15px;
+      font-family: inherit;
+      user-select: text;
+    }
+
+    .center-prompt-input::placeholder {
+      color: #cbd5e1;
+      opacity: 0.88;
+    }
+
+    .prompt-actions-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+
+    .icon-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .icon-btn.recording {
+      color: #fb7185;
+      background: rgba(244, 63, 94, 0.18);
+      animation: pulseMic 1.2s infinite;
+    }
+
+    @keyframes pulseMic {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.14); }
+    }
+
+    .right-action-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .send-btn {
+      width: 42px;
+      height: 36px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
+      color: #1e1b4b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 16px rgba(192, 132, 252, 0.55);
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    }
+
+    .send-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 0 22px rgba(192, 132, 252, 0.85);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+
+    /* ================= CHAT CONVERSATION STREAM ================= */
+    .chat-feed {
+      width: 100%;
+      max-width: 650px;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 10px 14px 16px 8px;
+      user-select: text;
+      z-index: 6;
+    }
+
+    .chat-feed::-webkit-scrollbar {
+      width: 5px;
+    }
+    .chat-feed::-webkit-scrollbar-thumb {
+      background: rgba(167, 139, 250, 0.35);
+      border-radius: 6px;
+    }
+
+    .msg-row {
+      display: flex;
+      flex-direction: column;
+      max-width: 88%;
+      flex-shrink: 0;
+      animation: msgFadeIn 0.2s ease-out;
+    }
+
+    @keyframes msgFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-row.user {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .msg-row.assistant {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    .msg-meta {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+      padding: 0 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .msg-bubble {
+      padding: 11px 15px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.52;
+      white-space: pre-wrap;
+      word-break: break-word;
+      backdrop-filter: blur(16px);
+    }
+
+    .msg-row.user .msg-bubble {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.62), rgba(109, 40, 217, 0.62));
+      border: 1px solid rgba(192, 132, 252, 0.45);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg-row.assistant .msg-bubble {
+      background: rgba(26, 32, 72, 0.78);
+      border: 1px solid rgba(167, 139, 250, 0.28);
+      color: #f1f5f9;
+      border-bottom-left-radius: 4px;
+    }
+
+    .speak-mini-btn {
+      background: transparent;
+      border: none;
+      color: #a78bfa;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 1px 4px;
+    }
+    .speak-mini-btn:hover {
+      color: #ffffff;
+    }
+
+    /* ================= BOTTOM DOCK BAR ================= */
+    .bottom-dock {
+      position: absolute;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 86%;
+      max-width: 680px;
+      height: 52px;
+      background: rgba(43, 45, 92, 0.54);
+      border: 1px solid rgba(167, 139, 250, 0.32);
+      border-radius: 16px;
+      padding: 0 12px 0 16px;
+      backdrop-filter: blur(22px);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      z-index: 12;
+    }
+
+    .bottom-dock-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-size: 14.5px;
+      font-family: inherit;
+      user-select: text;
+    }
+
+    .bottom-dock-input::placeholder {
+      color: rgba(203, 213, 225, 0.65);
+    }
+
+    /* ================= MOVABLE & MINIMIZABLE FLOATING WIDGETS ================= */
+    .floating-widget {
+      position: absolute;
+      width: 230px;
+      background: rgba(36, 40, 84, 0.58);
+      border: 1px solid rgba(167, 139, 250, 0.32);
+      border-radius: 14px;
+      padding: 13px 15px 15px 15px;
+      backdrop-filter: blur(22px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.42);
+      z-index: 25;
+      transition: box-shadow 0.2s ease;
+    }
+
+    .floating-widget.dragging {
+      box-shadow: 0 18px 44px rgba(139, 92, 246, 0.38);
+      border-color: rgba(192, 132, 252, 0.65);
+      cursor: grabbing;
+    }
+
+    .floating-widget.minimized {
+      padding: 10px 14px;
+    }
+
+    .widget-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: grab;
+      padding-bottom: 2px;
+    }
+
+    .widget-header:active {
+      cursor: grabbing;
+    }
+
+    .widget-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      overflow: hidden;
+    }
+
+    .widget-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #f1f5f9;
+      white-space: nowrap;
+    }
+
+    .minimized-summary {
+      font-size: 11.5px;
+      color: #c084fc;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .widget-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .widget-ctrl-btn {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      font-size: 14px;
+      cursor: pointer;
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .widget-ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+
+    .widget-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.09);
+      margin: 9px 0 12px 0;
+    }
+
+    .status-pill-bar {
+      width: 44px;
+      height: 10px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #f5d0fe 0%, #c084fc 100%);
+      box-shadow: 0 0 10px rgba(192, 132, 252, 0.85);
+      margin-bottom: 12px;
+    }
+
+    .gauges-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding-top: 2px;
+    }
+
+    .gauge-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .gauge-svg-wrap {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gauge-value {
+      position: absolute;
+      font-size: 15px;
+      font-weight: 500;
+      color: #f8fafc;
+    }
+
+    .gauge-label {
+      font-size: 13px;
+      color: #e2e8f0;
+      margin-top: -4px;
+    }
+
+    .drive-stats-box {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 11.5px;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    /* Sentinel Widget Content */
+    .sentinel-filename {
+      font-size: 13.5px;
+      color: #f1f5f9;
+      margin-bottom: 5px;
+      word-break: break-all;
+      font-weight: 400;
+    }
+
+    .sentinel-time {
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+
+    .sentinel-expanded {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sentinel-btn-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .sentinel-action-btn {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      background: rgba(15, 23, 42, 0.6);
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .sentinel-action-btn.active {
+      background: linear-gradient(135deg, #c084fc 0%, #9333ea 100%);
+      color: #1e1b4b;
+      border-color: transparent;
+      font-weight: 600;
+    }
+
+    .sentinel-log-box {
+      max-height: 95px;
+      overflow-y: auto;
+      background: rgba(8, 11, 28, 0.7);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 11px;
+      color: #a5f3fc;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    /* ================= MEMORY & PROFILE MODAL ================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 6, 18, 0.65);
+      backdrop-filter: blur(8px);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-card {
+      width: 92%;
+      max-width: 460px;
+      background: rgba(22, 27, 62, 0.92);
+      border: 1px solid rgba(167, 139, 250, 0.4);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      color: #f8fafc;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 340px;
+      overflow-y: auto;
+      font-size: 13px;
+    }
+
+    .mem-stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .mem-stat-box {
+      background: rgba(12, 16, 40, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .mem-stat-label {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+
+    .mem-stat-val {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e9d5ff;
+    }
+
+    .mem-list {
+      background: rgba(12, 16, 40, 0.7);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: #cbd5e1;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    function CircularGauge({ percent, label }) {
+      const safePercent = Math.min(100, Math.max(0, Number(percent) || 0));
+      const radius = 28;
+      const circumference = 2 * Math.PI * radius;
+      const arcLength = circumference * 0.75;
+      const strokeDashoffset = arcLength - (safePercent / 100) * arcLength;
+
+      return (
+        <div className="gauge-item">
+          <div className="gauge-svg-wrap">
+            <svg width="72" height="72" viewBox="0 0 72 72" style={{ transform: "rotate(135deg)" }}>
+              <defs>
+                <linearGradient id={`grad-${label}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#f0abfc" />
+                  <stop offset="100%" stopColor="#8b5cf6" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="36"
+                cy="36"
+                r={radius}
+                fill="transparent"
+                stroke="rgba(255, 255, 255, 0.1)"
+                strokeWidth="6"
+                strokeDasharray={`${arcLength} ${circumference}`}
+                strokeLinecap="round"
+              />
+              <circle
+                cx="36"
+                cy="36"
+                r={radius}
+                fill="transparent"
+                stroke={`url(#grad-${label})`}
+                strokeWidth="6"
+                strokeDasharray={`${arcLength} ${circumference}`}
+                strokeDashoffset={strokeDashoffset}
+                strokeLinecap="round"
+                style={{
+                  transition: "stroke-dashoffset 0.5s ease",
+                  filter: "drop-shadow(0 0 6px rgba(192,132,252,0.75))"
+                }}
+              />
+            </svg>
+            <span className="gauge-value">{safePercent}%</span>
+          </div>
+          <span className="gauge-label">{label}</span>
+        </div>
+      );
+    }
+
+    function App() {
+      const [topInput, setTopInput] = useState("");
+      const [bottomInput, setBottomInput] = useState("");
+      const [messages, setMessages] = useState([]);
+      const [busy, setBusy] = useState(false);
+
+      const [tasksOpen, setTasksOpen] = useState(false);
+      const [recentChats, setRecentChats] = useState([
+        "Hi there, Sir an ...",
+        "Recent help yo..."
+      ]);
+
+      const [ollamaOnline, setOllamaOnline] = useState(true);
+      const [voiceEnabled, setVoiceEnabled] = useState(true);
+      const [cpu, setCpu] = useState(28);
+      const [ram, setRam] = useState(23);
+      const [drives, setDrives] = useState([]);
+      const [sentinelRunning, setSentinelRunning] = useState(false);
+      const [sentinelFile, setSentinelFile] = useState("document.txt");
+      const [sentinelTime, setSentinelTime] = useState("10:33 AM");
+      const [sentinelLogs, setSentinelLogs] = useState([]);
+      const [memoryData, setMemoryData] = useState({
+        user_name: "",
+        profile: {},
+        preferences: {},
+        memories: []
+      });
+
+      const [showMemoryModal, setShowMemoryModal] = useState(false);
+      const [showSysDetails, setShowSysDetails] = useState(false);
+      const [showSentinelDetails, setShowSentinelDetails] = useState(false);
+      const [isRecording, setIsRecording] = useState(false);
+
+      // Minimizable State for System Monitor & Sentinel
+      const [sysMinimized, setSysMinimized] = useState(false);
+      const [sentinelMinimized, setSentinelMinimized] = useState(false);
+
+      // Movable Coordinates (relative to center-stage container)
+      const [sysPos, setSysPos] = useState({ x: null, y: 18 });
+      const [sentinelPos, setSentinelPos] = useState({ x: null, y: 228 });
+      const [draggingWidget, setDraggingWidget] = useState(null);
+      const dragOffset = useRef({ x: 0, y: 0 });
+
+      const centerStageRef = useRef(null);
+      const chatFeedRef = useRef(null);
+      const fileInputRef = useRef(null);
+      const bottomInputRef = useRef(null);
+
+      const fetchSystemState = async () => {
+        try {
+          const res = await fetch("/api/state");
+          if (!res.ok) return;
+          const data = await res.json();
+          setCpu(data.cpu ?? 28);
+          setRam(data.ram ?? 23);
+          setDrives(data.drives || []);
+          setOllamaOnline(Boolean(data.ollama_online));
+          setVoiceEnabled(Boolean(data.voice_enabled));
+          setSentinelRunning(Boolean(data.sentinel_running));
+          setSentinelFile(data.sentinel_file || "document.txt");
+          setSentinelTime(data.sentinel_time || "10:33 AM");
+          setSentinelLogs(data.sentinel_logs || []);
+          if (data.memory) {
+            setMemoryData(data.memory);
+          }
+          if (Array.isArray(data.recent_chats) && data.recent_chats.length > 0) {
+            setRecentChats(data.recent_chats);
+          }
+        } catch (err) {}
+      };
+
+      useEffect(() => {
+        fetchSystemState();
+        const timer = setInterval(fetchSystemState, 2500);
+        return () => clearInterval(timer);
+      }, []);
+
+      // Safe internal scrolling ONLY inside .chat-feed
+      useEffect(() => {
+        if (chatFeedRef.current) {
+          chatFeedRef.current.scrollTop = chatFeedRef.current.scrollHeight;
+        }
+      }, [messages, busy]);
+
+      // Dragging logic bounded cleanly inside centerStageRef
+      useEffect(() => {
+        const handleMouseMove = (e) => {
+          if (!draggingWidget || !centerStageRef.current) return;
+          const stageRect = centerStageRef.current.getBoundingClientRect();
+          const widgetWidth = 230;
+          const maxLeft = Math.max(10, stageRect.width - widgetWidth - 10);
+          const maxTop = Math.max(10, stageRect.height - 60);
+
+          const newX = Math.max(10, Math.min(maxLeft, e.clientX - stageRect.left - dragOffset.current.x));
+          const newY = Math.max(10, Math.min(maxTop, e.clientY - stageRect.top - dragOffset.current.y));
+
+          if (draggingWidget === "sys") {
+            setSysPos({ x: newX, y: newY });
+          } else if (draggingWidget === "sentinel") {
+            setSentinelPos({ x: newX, y: newY });
+          }
+        };
+
+        const handleMouseUp = () => {
+          if (draggingWidget) {
+            setDraggingWidget(null);
+          }
+        };
+
+        window.addEventListener("mousemove", handleMouseMove);
+        window.addEventListener("mouseup", handleMouseUp);
+        return () => {
+          window.removeEventListener("mousemove", handleMouseMove);
+          window.removeEventListener("mouseup", handleMouseUp);
+        };
+      }, [draggingWidget]);
+
+      const startDrag = (widgetKey, e) => {
+        if (e.target.closest("button")) return;
+        const widgetEl = e.currentTarget.parentElement;
+        const rect = widgetEl.getBoundingClientRect();
+        dragOffset.current = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        };
+        setDraggingWidget(widgetKey);
+      };
+
+      const resetWidgetPositions = () => {
+        setSysPos({ x: null, y: 18 });
+        setSentinelPos({ x: null, y: 228 });
+      };
+
+      const sendCommand = async (rawText, source = "custom") => {
+        const text = rawText.trim();
+        if (!text || busy) return;
+
+        if (source === "top") setTopInput("");
+        if (source === "bottom") setBottomInput("");
+
+        const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        setMessages((prev) => [...prev, { role: "user", content: text, time: nowStr }]);
+        setBusy(true);
+
+        try {
+          const res = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text })
+          });
+          const data = await res.json();
+          const replyTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: data.reply || "No response received.", time: replyTime }
+          ]);
+          fetchSystemState();
+        } catch (err) {
+          const replyTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content: "Could not reach ELO local backend. Make sure `python gui.py` is running.",
+              time: replyTime
+            }
+          ]);
+        } finally {
+          setBusy(false);
+          setTimeout(() => bottomInputRef.current?.focus(), 50);
+        }
+      };
+
+      const toggleSentinel = async (action) => {
+        try {
+          const res = await fetch(`/api/sentinel/${action}`, { method: "POST" });
+          const data = await res.json();
+          if (data.message) {
+            const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            setMessages((prev) => [...prev, { role: "assistant", content: data.message, time: nowStr }]);
+          }
+          fetchSystemState();
+        } catch (e) {}
+      };
+
+      const handleToggleVoice = async () => {
+        try {
+          const res = await fetch("/api/voice/toggle", { method: "POST" });
+          const data = await res.json();
+          setVoiceEnabled(Boolean(data.voice_enabled));
+        } catch (e) {}
+      };
+
+      const handleSpeakText = async (text) => {
+        try {
+          await fetch("/api/voice/speak", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text })
+          });
+        } catch (e) {}
+      };
+
+      const handleMicInput = (targetBox) => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          handleSpeakText("Hello! I am ELO. My voice system is online.");
+          return;
+        }
+        if (isRecording) {
+          setIsRecording(false);
+          return;
+        }
+        const recognition = new SpeechRecognition();
+        recognition.lang = "en-US";
+        recognition.interimResults = false;
+        setIsRecording(true);
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          if (targetBox === "top") setTopInput(transcript);
+          else setBottomInput(transcript);
+          setIsRecording(false);
+        };
+        recognition.onerror = () => setIsRecording(false);
+        recognition.onend = () => setIsRecording(false);
+        recognition.start();
+      };
+
+      const handleFileUpload = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const snippet = String(reader.result || "").slice(0, 1500);
+          const promptText = `Analyze this file (${file.name}):\n${snippet}`;
+          if (messages.length === 0) setTopInput(promptText);
+          else setBottomInput(promptText);
+        };
+        reader.readAsText(file);
+        e.target.value = "";
+      };
+
+      const handleClearChat = async () => {
+        if (busy) return;
+        setMessages([]);
+        try {
+          await fetch("/api/history/clear", { method: "POST" });
+          fetchSystemState();
+        } catch (e) {}
+      };
+
+      const handleExportChat = () => {
+        if (messages.length === 0) return;
+        const content = messages
+          .map((m) => `${m.role === "user" ? "YOU" : "ELO"} (${m.time}):\n${m.content}`)
+          .join("\n\n");
+        const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `ELO_chat_${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "_")}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+
+      const toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen?.();
+        } else {
+          document.exitFullscreen?.();
+        }
+      };
+
+      return (
+        <div className="elo-window">
+          <div className="wave-bg"></div>
+          <div className="wave-ribbon-1"></div>
+          <div className="wave-ribbon-2"></div>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleFileUpload}
+          />
+
+          {/* ================= TOP TITLE BAR ================= */}
+          <header className="titlebar">
+            <div className="titlebar-left">
+              <div className="orb-icon"></div>
+              <span className="brand-title">ELO</span>
+              <div className="titlebar-divider"></div>
+              <button
+                className={`titlebar-nav-btn ${messages.length === 0 ? "active" : ""}`}
+                onClick={() => setMessages([])}
+                title="Return to Home Screen"
+              >
+                Home
+              </button>
+
+              <div className="status-pill" title="Ollama Local AI Connection Status">
+                <span
+                  className={`status-dot ${
+                    busy ? "busy" : ollamaOnline ? "online" : "offline"
+                  }`}
+                ></span>
+                <span>
+                  {busy
+                    ? "PROCESSING..."
+                    : ollamaOnline
+                    ? "LOCAL AI ONLINE"
+                    : "LOCAL AI OFFLINE"}
+                </span>
+              </div>
+
+              <button
+                className="titlebar-nav-btn"
+                onClick={handleToggleVoice}
+                title="Toggle ELO Voice Speaker Output"
+                style={{ fontSize: "12px", color: voiceEnabled ? "#a78bfa" : "#64748b" }}
+              >
+                {voiceEnabled ? "🔊 Voice On" : "🔇 Voice Muted"}
+              </button>
+            </div>
+
+            <div className="window-controls">
+              <button
+                className="win-btn"
+                title="Minimize / Restore Right Widgets"
+                onClick={() => {
+                  const nextState = !(sysMinimized && sentinelMinimized);
+                  setSysMinimized(nextState);
+                  setSentinelMinimized(nextState);
+                }}
+              >
+                —
+              </button>
+              <button className="win-btn" title="Toggle Fullscreen" onClick={toggleFullscreen}>
+                ▢
+              </button>
+              <button
+                className="win-btn close"
+                title="Close Window"
+                onClick={() => window.close()}
+              >
+                ✕
+              </button>
+            </div>
+          </header>
+
+          {/* ================= MAIN WORKSPACE ================= */}
+          <div className="workspace">
+            {/* LEFT SIDEBAR */}
+            <aside className="sidebar">
+              <div className="sidebar-top">
+                <div className="sidebar-brand" onClick={() => setMessages([])}>
+                  <div className="orb-icon large"></div>
+                  <span>ELO</span>
+                </div>
+
+                <div
+                  className="nav-dropdown"
+                  onClick={() => setTasksOpen(!tasksOpen)}
+                  title="Click to toggle Quick Desktop Tasks & Actions"
+                >
+                  <div className="nav-dropdown-left">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span>Chats & Tasks</span>
+                  </div>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    style={{
+                      transform: tasksOpen ? "rotate(180deg)" : "rotate(0deg)",
+                      transition: "transform 0.2s"
+                    }}
+                  >
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+
+                {tasksOpen && (
+                  <div className="tasks-menu">
+                    <button className="task-btn" onClick={() => sendCommand("open notepad")}>
+                      📝 Open Notepad
+                    </button>
+                    <button className="task-btn" onClick={() => sendCommand("open calculator")}>
+                      🧮 Calculator
+                    </button>
+                    <button className="task-btn" onClick={() => sendCommand("open file explorer")}>
+                      📁 File Explorer
+                    </button>
+                    <button className="task-btn" onClick={() => sendCommand("open browser")}>
+                      🌐 Open Browser
+                    </button>
+                    <button className="task-btn" onClick={() => sendCommand("system info")}>
+                      💻 System Info
+                    </button>
+                    <button className="task-btn" onClick={() => sendCommand("show memory")}>
+                      🧠 Show Memory
+                    </button>
+                    <button
+                      className="task-btn"
+                      onClick={() => handleSpeakText("Hello! I am ELO. My voice system is online.")}
+                    >
+                      🔊 Test Voice
+                    </button>
+                    <button className="task-btn" onClick={handleExportChat}>
+                      💾 Export Chat
+                    </button>
+                    <button className="task-btn" onClick={handleClearChat}>
+                      🗑️ Clear Chat
+                    </button>
+                    <button className="task-btn" onClick={resetWidgetPositions}>
+                      📌 Reset Widgets
+                    </button>
+                  </div>
+                )}
+
+                <div className="recent-section">
+                  <div className="recent-header-row">
+                    <span className="recent-label">Recent chat</span>
+                    {messages.length > 0 && (
+                      <button className="mini-action-btn" onClick={handleClearChat} title="Clear Chat">
+                        Clear
+                      </button>
+                    )}
+                  </div>
+
+                  {recentChats.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="recent-item"
+                      onClick={() => sendCommand(item.replace(/\.\.\.$/, ""))}
+                      title={item}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" style={{ flexShrink: 0 }}>
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                      </svg>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="sidebar-footer">
+                <div
+                  className="avatar-trigger"
+                  onClick={() => setShowMemoryModal(true)}
+                  title="Open ELO Memory Core & User Profile"
+                >
+                  <div className="user-avatar">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="#1e293b">
+                      <circle cx="12" cy="8" r="4" />
+                      <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                    </svg>
+                  </div>
+                  <div className="user-meta">
+                    <span className="user-meta-name">
+                      {memoryData.user_name || "Sir"}
+                    </span>
+                    <span className="user-meta-sub">Memory Core</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            {/* ================= CENTER STAGE ================= */}
+            <main
+              ref={centerStageRef}
+              className={`center-stage ${messages.length > 0 ? "chat-active" : ""}`}
+            >
+              {/* ONLY show 'Hi there, Sir' & center prompt box BEFORE chat starts */}
+              {messages.length === 0 && (
+                <div className="hero-container">
+                  <h1 className="hero-greeting">Hi there, Sir</h1>
+
+                  <div className="center-prompt-card">
+                    <input
+                      type="text"
+                      className="center-prompt-input"
+                      placeholder="How can I help you today?"
+                      value={topInput}
+                      disabled={busy}
+                      onChange={(e) => setTopInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && sendCommand(topInput, "top")}
+                    />
+                    <div className="prompt-actions-row">
+                      <button
+                        className="icon-btn"
+                        title="Attach text/code file"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        +
+                      </button>
+                      <div className="right-action-group">
+                        <button
+                          className={`icon-btn ${isRecording ? "recording" : ""}`}
+                          onClick={() => handleMicInput("top")}
+                          title="Voice Input / Test Voice"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                          </svg>
+                        </button>
+                        <button
+                          className="send-btn"
+                          disabled={busy}
+                          onClick={() => sendCommand(topInput, "top")}
+                          title="Send Message"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Scrollable Chat Feed takes full center space once chat starts */}
+              {messages.length > 0 && (
+                <div className="chat-feed" ref={chatFeedRef}>
+                  {messages.map((m, idx) => (
+                    <div key={idx} className={`msg-row ${m.role}`}>
+                      <div className="msg-meta">
+                        <span>{m.role === "user" ? "YOU" : "ELO"} • {m.time}</span>
+                        {m.role === "assistant" && (
+                          <button
+                            className="speak-mini-btn"
+                            onClick={() => handleSpeakText(m.content)}
+                            title="Speak this response aloud"
+                          >
+                            🔊
+                          </button>
+                        )}
+                      </div>
+                      <div className="msg-bubble">{m.content}</div>
+                    </div>
+                  ))}
+                  {busy && (
+                    <div className="msg-row assistant">
+                      <div className="msg-meta">ELO • thinking...</div>
+                      <div className="msg-bubble" style={{ opacity: 0.75 }}>
+                        Processing your request...
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ================= BOTTOM INPUT DOCK ================= */}
+              <div className="bottom-dock">
+                <button
+                  className="icon-btn"
+                  title="Attach file"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  +
+                </button>
+                <input
+                  ref={bottomInputRef}
+                  type="text"
+                  className="bottom-dock-input"
+                  placeholder="Ask ELO anything or run a command (e.g., 'show memory', 'system info')..."
+                  value={bottomInput}
+                  disabled={busy}
+                  onChange={(e) => setBottomInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && sendCommand(bottomInput, "bottom")}
+                />
+                <div className="right-action-group">
+                  <button
+                    className={`icon-btn ${isRecording ? "recording" : ""}`}
+                    onClick={() => handleMicInput("bottom")}
+                    title="Voice Input"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                      <line x1="12" y1="19" x2="12" y2="23"></line>
+                      <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                  </button>
+                  <button
+                    className="send-btn"
+                    disabled={busy}
+                    onClick={() => sendCommand(bottomInput, "bottom")}
+                    title="Send"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* ================= MOVABLE & MINIMIZABLE WIDGET 1: SYSTEM MONITOR ================= */}
+              <div
+                className={`floating-widget ${sysMinimized ? "minimized" : ""} ${
+                  draggingWidget === "sys" ? "dragging" : ""
+                }`}
+                style={{
+                  top: `${sysPos.y}px`,
+                  ...(sysPos.x !== null
+                    ? { left: `${sysPos.x}px` }
+                    : { right: "20px" })
+                }}
+              >
+                <div
+                  className="widget-header"
+                  onMouseDown={(e) => startDrag("sys", e)}
+                  title="Drag to move System Monitor anywhere"
+                >
+                  <div className="widget-title-wrap">
+                    <span className="widget-title">System Monitor</span>
+                    {sysMinimized && (
+                      <span className="minimized-summary">
+                        {cpu}% | {ram}%
+                      </span>
+                    )}
+                  </div>
+                  <div className="widget-controls">
+                    <button
+                      className="widget-ctrl-btn"
+                      onClick={() => setSysMinimized(!sysMinimized)}
+                      title={sysMinimized ? "Expand System Monitor" : "Minimize System Monitor"}
+                    >
+                      {sysMinimized ? "+" : "—"}
+                    </button>
+                    <button
+                      className="widget-ctrl-btn"
+                      onClick={() => {
+                        if (sysMinimized) setSysMinimized(false);
+                        setShowSysDetails(!showSysDetails);
+                      }}
+                      title="Toggle Disk Drive Info"
+                    >
+                      •••
+                    </button>
+                  </div>
+                </div>
+
+                {!sysMinimized && (
+                  <>
+                    <div className="widget-divider"></div>
+                    <div className="status-pill-bar"></div>
+                    <div className="gauges-row">
+                      <CircularGauge percent={cpu} label="CPU" />
+                      <CircularGauge percent={ram} label="RAM" />
+                    </div>
+                    {showSysDetails && drives.length > 0 && (
+                      <div className="drive-stats-box">
+                        {drives.map((d, i) => (
+                          <div key={i}>{d}</div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* ================= MOVABLE & MINIMIZABLE WIDGET 2: SENTINEL ================= */}
+              <div
+                className={`floating-widget ${sentinelMinimized ? "minimized" : ""} ${
+                  draggingWidget === "sentinel" ? "dragging" : ""
+                }`}
+                style={{
+                  top: `${sentinelPos.y}px`,
+                  ...(sentinelPos.x !== null
+                    ? { left: `${sentinelPos.x}px` }
+                    : { right: "20px" })
+                }}
+              >
+                <div
+                  className="widget-header"
+                  onMouseDown={(e) => startDrag("sentinel", e)}
+                  title="Drag to move Sentinel widget anywhere"
+                >
+                  <div className="widget-title-wrap">
+                    <span className="widget-title">Sentinel</span>
+                    {sentinelMinimized && (
+                      <span className="minimized-summary">{sentinelFile}</span>
+                    )}
+                  </div>
+                  <div className="widget-controls">
+                    <button
+                      className="widget-ctrl-btn"
+                      onClick={() => setSentinelMinimized(!sentinelMinimized)}
+                      title={sentinelMinimized ? "Expand Sentinel" : "Minimize Sentinel"}
+                    >
+                      {sentinelMinimized ? "+" : "—"}
+                    </button>
+                    <button
+                      className="widget-ctrl-btn"
+                      onClick={() => {
+                        if (sentinelMinimized) setSentinelMinimized(false);
+                        setShowSentinelDetails(!showSentinelDetails);
+                      }}
+                      title="Toggle Sentinel Controls & Event Feed"
+                    >
+                      •••
+                    </button>
+                  </div>
+                </div>
+
+                {!sentinelMinimized && (
+                  <>
+                    <div className="widget-divider"></div>
+                    <div className="sentinel-filename">{sentinelFile}</div>
+                    <div className="sentinel-time">last edited - {sentinelTime}</div>
+
+                    {showSentinelDetails && (
+                      <div className="sentinel-expanded">
+                        <div style={{ fontSize: "11px", color: sentinelRunning ? "#4ade80" : "#facc15" }}>
+                          STATUS: {sentinelRunning ? "RUNNING" : "STOPPED"}
+                        </div>
+                        <div className="sentinel-btn-row">
+                          <button
+                            className={`sentinel-action-btn ${sentinelRunning ? "active" : ""}`}
+                            onClick={() => toggleSentinel("start")}
+                          >
+                            START
+                          </button>
+                          <button
+                            className={`sentinel-action-btn ${!sentinelRunning ? "active" : ""}`}
+                            onClick={() => toggleSentinel("stop")}
+                          >
+                            STOP
+                          </button>
+                        </div>
+                        <div className="sentinel-log-box">
+                          {sentinelLogs.length > 0
+                            ? sentinelLogs.join("\n\n")
+                            : "No file events recorded yet."}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </main>
+          </div>
+
+          {/* ================= MEMORY CORE MODAL ================= */}
+          {showMemoryModal && (
+            <div className="modal-backdrop" onClick={() => setShowMemoryModal(false)}>
+              <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <span style={{ fontWeight: 600, fontSize: "15px" }}>
+                    ELO Memory Core & Profile
+                  </span>
+                  <button
+                    className="win-btn"
+                    onClick={() => setShowMemoryModal(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="modal-body">
+                  <div className="mem-stat-grid">
+                    <div className="mem-stat-box">
+                      <div className="mem-stat-label">USER NAME</div>
+                      <div className="mem-stat-val">
+                        {memoryData.user_name || "Not set"}
+                      </div>
+                    </div>
+                    <div className="mem-stat-box">
+                      <div className="mem-stat-label">SAVED MEMORIES</div>
+                      <div className="mem-stat-val">
+                        {(memoryData.memories || []).length}
+                      </div>
+                    </div>
+                    <div className="mem-stat-box">
+                      <div className="mem-stat-label">PROFILE FIELDS</div>
+                      <div className="mem-stat-val">
+                        {Object.keys(memoryData.profile || {}).length}
+                      </div>
+                    </div>
+                    <div className="mem-stat-box">
+                      <div className="mem-stat-label">PREFERENCES</div>
+                      <div className="mem-stat-val">
+                        {Object.keys(memoryData.preferences || {}).length}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mem-list">
+                    <strong style={{ color: "#e9d5ff" }}>Saved Memories:</strong>
+                    <br />
+                    {(memoryData.memories || []).length > 0
+                      ? memoryData.memories.map((m, i) => <div key={i}>• {m}</div>)
+                      : "No saved memories yet. Try saying 'remember I love coding'."}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>

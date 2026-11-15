@@ -1,0 +1,37 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE settings
+.vscode/
+
+# Backup and cache
+backup/
+cache/
+pip-cache/
+
+# AI model files (review before publishing)
+models/
+
+# Personal data
+memory/
+memory.json
+chat_history.json
+sentinel_events.jsonl
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Frontend dependencies
+node_modules/
+
+# Temporary files
+*.log
+*.tmp
