@@ -1,55 +1,51 @@
-⚡ ELO
-
-Your Personal AI Assistant
+⚡ ELO — Your Personal AI Assistant
 
 <p align="center">
-  <strong>A personal AI assistant built with Python, modular architecture, and a vision for intelligent interaction.</strong>
+  <img src="https://img.shields.io/badge/PROJECT-ELO-00F5FF?style=for-the-badge&labelColor=080B18" />
+  <img src="https://img.shields.io/badge/STATUS-IN%20DEVELOPMENT-FF2E88?style=for-the-badge&labelColor=080B18" />
+  <img src="https://img.shields.io/badge/BUILT%20WITH-PYTHON-00F5FF?style=for-the-badge&labelColor=080B18" />
 </p><p align="center">
-  <img src="https://img.shields.io/badge/PROJECT-ELO-00E5FF?style=for-the-badge&labelColor=09090F" alt="ELO">
-  <img src="https://img.shields.io/badge/PYTHON-CORE-9B5DE5?style=for-the-badge&logo=python&logoColor=white&labelColor=09090F" alt="Python">
-  <img src="https://img.shields.io/badge/STATUS-IN%20DEVELOPMENT-FF00FF?style=for-the-badge&labelColor=09090F" alt="Development">
+  <b>A Personal AI Assistant</b><br/>
+  A modular assistant project exploring intelligent interaction, voice components, memory management, and a modern user interface.
 </p><p align="center">
   <a href="https://github.com/nandanshanto/ELO">Repository</a> •
-  <a href="https://github.com/nandanshanto">Developer</a>
+  <a href="#features">Features</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#getting-started">Getting Started</a>
 </p>---
 
-◈ ABOUT ELO
+◈ 01 — OVERVIEW
 
-ELO is a personal AI assistant project developed to explore intelligent interaction, modular software architecture, and personal assistant technologies.
+ELO is a personal AI Assistant project developed with Python and modern frontend technologies.
 
-Built primarily with Python, ELO brings together different application components, including conversational interaction, memory handling, voice-related modules, and a user interface.
+The project follows a modular architecture, separating core application logic, voice-related components, monitoring modules, and user interface resources.
 
-The goal is to develop an extensible assistant that can evolve through continuous experimentation and development.
+The goal is to develop a structured foundation for a personal AI assistant.
 
-«Not just another script. A vision of a smarter personal assistant.»
+«Project Status: Active Development»
 
----
+◈ 02 — FEATURES & COMPONENTS
 
-◈ PROJECT HIGHLIGHTS
+Component| Description
+Modular Architecture| Separated application modules
+Command Handling| Dedicated command-processing module
+Memory Management| Memory-related application module
+Voice Components| Voice-related functionality
+Sentinel System| Monitoring-related components
+User Interface| Frontend and HTML-based interface
 
-- Modular Architecture — Separated application components for easier development and maintenance.
-- Conversation Handling — A dedicated command and response module.
-- Memory Management — Memory loading and saving functionality in the application.
-- Voice Components — Dedicated voice-related application module.
-- Sentinel Components — Separate modules for assistant-related monitoring functionality.
-- User Interface — Frontend and HTML-based interface components.
+Features and capabilities are under active development.
 
-Project capabilities are under active development.
-
----
-
-◈ TECHNOLOGY STACK
+◈ 03 — TECHNOLOGY STACK
 
 <p>
-  <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white">
-  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black">
-  <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black">
-  <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white">
-  <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white">
-  <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white">
-</p>---
-
-◈ PROJECT ARCHITECTURE
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"/>
+  <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black"/>
+  <img src="https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=css3&logoColor=white"/>
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white"/>
+</p>◈ 04 — PROJECT ARCHITECTURE
 
 ELO/
 │
@@ -66,36 +62,33 @@ ELO/
 │   └── voice.py
 │
 ├── sentinel_watch/
+│   └── sentinel_test.txt
 │
 ├── ui/
 │   └── index.html
 │
 ├── gui.py
 ├── main.py
-├── orb_test.py
 └── .gitignore
 
-Core Components
+Core Modules
 
-Module| Responsibility
-"main.py"| Main application entry point
-"gui.py"| GUI-related application logic
-"commands.py"| Command and response handling
-"guardian.py"| Guardian component
-"sentinel.py"| Sentinel component
-"voice.py"| Voice-related functionality
-"frontend/"| Frontend source code
-"ui/"| HTML user interface
-"sentinel_watch/"| Sentinel-related supporting files
+- main.py — Main application entry point.
+- gui.py — GUI-related application logic.
+- commands.py — Command handling module.
+- guardian.py — Guardian component.
+- sentinel.py — Sentinel component.
+- voice.py — Voice-related component.
+- frontend/ — Frontend source files.
+- ui/ — HTML user interface resources.
+- sentinel_watch/ — Sentinel monitoring-related resources.
 
----
-
-◈ GETTING STARTED
+◈ 05 — GETTING STARTED
 
 Prerequisites
 
-- Python installed on your system
-- Git installed on your system
+- Python installed on your system.
+- Git installed on your system.
 
 01 — Clone the Repository
 
@@ -117,52 +110,32 @@ Windows PowerShell:
 
 05 — Install Dependencies
 
-Dependency installation instructions will be added after the project's dependency configuration is finalized.
+Dependency installation instructions will be provided once the project's dependency configuration is finalized.
 
 06 — Run ELO
 
 python main.py
 
----
+Additional configuration may be required as development progresses.
 
-◈ DEVELOPMENT ROADMAP
+◈ 07 — PROJECT STATUS
 
-- [x] Initial project structure
-- [x] Python core modules
-- [x] Frontend foundation
-- [x] Initial GitHub publication
-- [ ] Improve assistant interaction
-- [ ] Expand memory functionality
-- [ ] Refine voice components
-- [ ] Improve user interface
-- [ ] Complete installation documentation
+ELO is currently an evolving personal development project.
 
----
+New components, improvements, and refinements will be introduced throughout development.
 
-◈ PROJECT STATUS
+◈ 08 — DEVELOPER
 
-<kbd>UNDER ACTIVE DEVELOPMENT</kbd>
+Nandan Das Shanto
 
-ELO is an evolving personal development project. Its architecture, functionality, and capabilities may change as development continues.
+GitHub: "@nandanshanto" (https://github.com/nandanshanto)
 
-Contributions, ideas, and constructive feedback are welcome.
+Project: "ELO — Your Personal AI Assistant" (https://github.com/nandanshanto/ELO)
 
 ---
-
-◈ DEVELOPER
 
 <p align="center">
-  <strong>NANDAN SHANTO</strong>
-  <br>
-  Developer of ELO
-  <br><br>
-  <a href="https://github.com/nandanshanto">
-    <img src="https://img.shields.io/badge/GitHub-nandanshanto-00E5FF?style=for-the-badge&logo=github&logoColor=white&labelColor=09090F">
-  </a>
-</p>---
-
-<p align="center">
-  <strong>⚡ ELO — Your Personal AI Assistant</strong>
-  <br>
-  <sub>Built with curiosity. Driven by innovation.</sub>
+  <b>BUILT WITH CURIOSITY. DEVELOPED WITH PURPOSE.</b>
+  <br/>
+  <sub>© 2026 ELO Project · All rights reserved unless a license is added.</sub>
 </p>
